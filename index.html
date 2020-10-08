@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Multi Channel Chat Room</title>
+</head>
+<body>
+<div id="information" hidden="true"></div>
+<label for="room" id="room-label">Room ID</label><input id="room" type="text" name="room" />
+<label for="name" id="name-label">Name</label><input id="name" type="text" name="name" />
+<label for="post" id="post-label" hidden="true">Comment</label><input id="post" type="text" hidden="true" />
+<button onclick="openWs()" id="open-button">Open</button>
+<button onclick="send()" id="send-button" disabled="true">Send</button>
+<button onclick="closeWs()" id="close-button" disabled="true">Close</button>
+<pre id="output"></pre>
+<script>
+    const information = document.getElementById("information")
+    const room = document.getElementById("room");
+    const roomLabel = document.getElementById("room-label");
+    const name = document.getElementById("name");
+    const nameLabel = document.getElementById("name-label");
+    const post = document.getElementById("post");
+    const postLabel = document.getElementById("post-label");
+    const output = document.getElementById("output");
+    const openButton = document.getElementById("open-button");
+    const sendButton = document.getElementById("send-button");
+    const closeButton = document.getElementById("close-button");
+
+    let socket = null;
+
+    window.onbeforeunload = closeWs;
+
+    function openWs() {
+        socket = new WebSocket("ws://" + window.location.host + "/chat?room=" + room.value + "&user=" + name.value);
+
+        socket.onopen = function() {
+            output.innerHTML = "Connected\n";
+            sendButton.disabled = false;
+            closeButton.disabled = false;
+        };
+
+        socket.onerror = function() {
+            console.log(socket)
+            output.innerHTML = "Connection Error\n";
+        }
+
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data)
+            if(data.system) {
+                output.innerHTML = data.user_name + " " + data.message + "\n" + output.innerHTML;
+            } else {
+                output.innerHTML = data.user_name + ": " + data.message + "\n" + output.innerHTML;
+            }
+        };
+
+        post.value = ""
+        room.hidden = true;
+        roomLabel.hidden = true;
+        name.hidden = true;
+        nameLabel.hidden = true;
+        post.hidden = false;
+        postLabel.hidden = false;
+        openButton.disabled = true;
+
+        const roomDisplay = document.createElement("span");
+        roomDisplay.style.marginRight = "5px";
+        roomDisplay.appendChild(document.createTextNode("room: " + room.value));
+        const nameDisplay = document.createElement("span");
+        nameDisplay.appendChild(document.createTextNode("name: " + name.value));
+        information.appendChild(roomDisplay);
+        information.appendChild(nameDisplay);
+        information.hidden = false;
+    }
+
+    function send() {
+        socket.send(JSON.stringify(
+            {
+                message: post.value
+            }
+        ));
+        post.value = "";
+    }
+
+    function closeWs() {
+        sendButton.disabled = true;
+        closeButton.disabled = true;
+        post.hidden = true;
+        postLabel.hidden = true;
+        socket.close();
+        openButton.disabled = false;
+        room.hidden = false;
+        roomLabel.hidden = false;
+        name.hidden = false;
+        nameLabel.hidden = false;
+        information.hidden = true;
+        output.innerHTML = "Chat finished\n" + output.innerHTML
+    }
+</script>
+</body>
+</html>
