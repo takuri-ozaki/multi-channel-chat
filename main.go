@@ -11,9 +11,6 @@ var roomManager = internal.NewRoomManager()
 var upgrader = websocket.Upgrader{}
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
 	http.HandleFunc("/chat", handleChat)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -60,7 +60,7 @@
         nameLabel.hidden = true;
         post.hidden = false;
         postLabel.hidden = false;
-        openButton.disabled = true;
+        openButton.hidden = true;
 
         const roomDisplay = document.createElement("span");
         roomDisplay.style.marginRight = "5px";
@@ -87,7 +87,7 @@
         post.hidden = true;
         postLabel.hidden = true;
         socket.close();
-        openButton.disabled = false;
+        openButton.hidden = false;
         room.hidden = false;
         roomLabel.hidden = false;
         name.hidden = false;
