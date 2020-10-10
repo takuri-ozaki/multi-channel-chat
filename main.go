@@ -19,6 +19,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("failed to upgrade get request to ws", err)
+		return
 	}
 	go roomManager.Join(getRoomName(r), getUserName(r), ws)
 

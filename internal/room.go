@@ -43,7 +43,7 @@ func (r *room) broadcaseMessages(message Message) {
 	for client := range r.clients {
 		err := client.WriteJSON(message)
 		if err != nil {
-			log.Printf("error occurred while writing message to client: %v", err)
+			log.Println("error occurred while writing message to client:", err)
 			client.Close()
 			delete(r.clients, client)
 		}
