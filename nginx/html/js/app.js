@@ -54,7 +54,6 @@ function openWs() {
     nameDisplay.appendChild(document.createTextNode("name: " + name.value));
     information.appendChild(roomDisplay);
     information.appendChild(nameDisplay);
-    information.hidden = false;
 }
 
 function send() {
@@ -77,6 +76,6 @@ function closeWs() {
     roomLabel.hidden = false;
     name.hidden = false;
     nameLabel.hidden = false;
-    information.hidden = true;
+    information.textContent = "";
     output.innerHTML = "Chat finished\n" + output.innerHTML;
 }
