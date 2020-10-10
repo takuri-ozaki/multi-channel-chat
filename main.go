@@ -21,7 +21,7 @@ func handleChat(w http.ResponseWriter, r *http.Request) {
 		log.Println("failed to upgrade get request to ws", err)
 		return
 	}
-	go roomManager.Join(getRoomName(r), getUserName(r), ws)
+	roomManager.Join(getRoomName(r), getUserName(r), ws)
 
 	defer ws.Close()
 	for {
