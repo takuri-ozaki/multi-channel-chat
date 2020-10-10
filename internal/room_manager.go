@@ -42,6 +42,7 @@ func (r *RoomManager) garbageCollect() {
 	for {
 		for roomName, room := range r.rooms {
 			if len(room.clients) == 0 {
+				close(r.rooms[roomName].closeChannel)
 				delete(r.rooms, roomName)
 			}
 		}

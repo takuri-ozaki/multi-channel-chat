@@ -6,13 +6,14 @@ import (
 )
 
 type room struct {
-	clients   map[*websocket.Conn]User
-	broadcast chan Message
+	clients      map[*websocket.Conn]User
+	broadcast    chan Message
+	closeChannel chan struct{}
 }
 
 func NewRoom() room {
-	room := room{clients: map[*websocket.Conn]User{}, broadcast: make(chan Message)}
-	go room.broadcastMessages()
+	room := room{clients: map[*websocket.Conn]User{}, broadcast: make(chan Message), closeChannel: make(chan struct{})}
+	go room.handleMessages()
 	return room
 }
 
@@ -26,16 +27,25 @@ func (r *room) Exit(ws *websocket.Conn, userName string) {
 	r.broadcast <- Message{Message: "exited", UserName: userName, System: true}
 }
 
-func (r *room) broadcastMessages() {
+func (r *room) handleMessages() {
 	for {
-		message := <-r.broadcast
-		for client := range r.clients {
-			err := client.WriteJSON(message)
-			if err != nil {
-				log.Printf("error occurred while writing message to client: %v", err)
-				client.Close()
-				delete(r.clients, client)
-			}
+		select {
+		case <- r.closeChannel:
+			return
+		case message := <-r.broadcast:
+			r.broadcaseMessages(message)
+		default:
+		}
+	}
+}
+
+func (r *room) broadcaseMessages(message Message) {
+	for client := range r.clients {
+		err := client.WriteJSON(message)
+		if err != nil {
+			log.Printf("error occurred while writing message to client: %v", err)
+			client.Close()
+			delete(r.clients, client)
 		}
 	}
 }
