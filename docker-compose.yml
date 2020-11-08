@@ -1,9 +1,19 @@
 version: "3"
 services:
-  chat:
+  chat_1:
     build: .
+    environment:
+      - port=8080
+      - name=chat1
     ports:
-    - 8080
+      - 8080
+  chat_2:
+    build: .
+    environment:
+      - port=8080
+      - name=chat2
+    ports:
+      - 8080
   nginx:
     image: nginx:latest
     volumes:
@@ -13,4 +23,5 @@ services:
     ports:
       - 80:80
     depends_on:
-      - chat
+      - chat_1
+      - chat_2

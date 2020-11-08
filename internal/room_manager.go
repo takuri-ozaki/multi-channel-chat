@@ -2,6 +2,7 @@ package internal
 
 import (
 	"github.com/gorilla/websocket"
+	"log"
 	"time"
 )
 
@@ -22,20 +23,23 @@ func (r *RoomManager) Join(roomName, userName string, ws *websocket.Conn) {
 		room = r.rooms[roomName]
 	}
 	room.Join(ws, userName)
+	log.Println(userName + " joined to " + roomName)
 }
 
 func (r *RoomManager) Exit(roomName, userName string, ws *websocket.Conn) {
 	room := r.rooms[roomName]
 	room.Exit(ws, userName)
+	log.Println(userName + " exited from " + roomName)
 }
 
 func (r *RoomManager) Speak(roomName string, message Message) {
-	room := r.rooms[roomName]
-	room.broadcast <- message
+	if room, ok := r.rooms[roomName]; ok {
+		room.broadcast <- message
+	}
 }
 
 func (r *RoomManager) createRoom(roomName string) {
-	r.rooms[roomName] = NewRoom()
+	r.rooms[roomName] = NewRoom(roomName)
 }
 
 func (r *RoomManager) garbageCollect() {
